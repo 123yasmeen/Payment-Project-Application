@@ -59,8 +59,7 @@ EN_terminalError_t getTransactionAmount(ST_terminalData_t *termData)
 
 EN_terminalError_t setMaxAmount(ST_terminalData_t *termData)
 {
-    printf("Enter Max Amount: \n");
-    scanf("%f",&termData->maxTransAmount);
+    termData->maxTransAmount=15000;
     if(termData->maxTransAmount<=0)
     {
         return INVALID_MAX_AMOUNT;
