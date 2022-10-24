@@ -49,9 +49,15 @@ void appStart()
 		}
 		while (1)
 		{
+			
 			if (isCardExpired(user.cardHolderData, user.terminalData))
 			{
 				printf("Declined Expired Card\n");
+				break;
+			}
+			if (isValidCardPAN(&user.cardHolderData))
+			{
+				printf("Fake PAN\n");
 				break;
 			}
 			if (setMaxAmount(&user.terminalData))
@@ -75,6 +81,7 @@ void appStart()
 			if (state == DECLINED_STOLEN_CARD)
 			{
 				printf("INVALID Blocked account\n");
+				break;
 			}
 			else if (state == DECLINED_INSUFFECIENT_FUND)
 			{

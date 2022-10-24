@@ -82,3 +82,25 @@ EN_terminalError_t isBelowMaxAmount(ST_terminalData_t *termData)
         return EXCEED_MAX_AMOUNT;
     }
 }
+EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
+{
+    uint8_t value = 0, result = 0;
+    int flag = 0;
+    for (char i = strlen(cardData->primaryAccountNumber) - 1; i >= 0; i--)
+    {
+        value = cardData->primaryAccountNumber[i] - '0';
+
+        if (flag == 1)
+            value = value * 2;
+
+        result += value / 10;
+        result += value % 10;
+        flag = !flag;
+
+    }
+
+    if (result % 10 != 0)
+        return INVALID_CARD;
+
+    return OK;
+}

@@ -4,7 +4,7 @@
 int CardIndex=0;
 float CardBalance=0;
 int transactionIndex = 0;
-ST_accountsDB_t accountsDb [255]={ {7000.00,RUNNING,"8945623985431754"},{2200.00,BLOCKED,"8945623985431755"},{400000.00,RUNNING,"8945623985431756"}};
+ST_accountsDB_t accountsDb[255] = { {7000.00,RUNNING,"42197595016361283"},{2200.00,BLOCKED,"12274013219468847"},{400000.00,RUNNING,"98224943623921876"} };
 ST_transaction Transatabase[255]={0};
 EN_transState_t receiveTransactionData(ST_transaction* transData)
 {
