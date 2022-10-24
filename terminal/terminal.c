@@ -84,22 +84,21 @@ EN_terminalError_t isBelowMaxAmount(ST_terminalData_t *termData)
 }
 EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
 {
-    uint8_t value = 0, result = 0;
-    int flag = 0;
+    int num = 0, sum = 0, pos = 0;
     for (char i = strlen(cardData->primaryAccountNumber) - 1; i >= 0; i--)
     {
-        value = cardData->primaryAccountNumber[i] - '0';
+        num = cardData->primaryAccountNumber[i] - '0';
 
-        if (flag == 1)
-            value = value * 2;
+        if (pos == 1)
+            num = num * 2;
 
-        result += value / 10;
-        result += value % 10;
-        flag = !flag;
+        sum += num % 10;
+        sum += num / 10;
+        pos = !pos;
 
     }
 
-    if (result % 10 != 0)
+    if (sum % 10 != 0)
         return INVALID_CARD;
 
     return OK;
