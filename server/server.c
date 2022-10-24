@@ -3,8 +3,9 @@
 #include <string.h>
 int CardIndex=0;
 float CardBalance=0;
-ST_accountsDB_t accountsDb [255]={ {7000.00,RUNNING,8945623985431754},{2200.00,BLOCKED,8945623985431755},{400000.00,RUNNING,8945623985431756}};
-ST_transaction transaction[255]={0};
+int transactionIndex = 0;
+ST_accountsDB_t accountsDb [255]={ {7000.00,RUNNING,"8945623985431754"},{2200.00,BLOCKED,"8945623985431755"},{400000.00,RUNNING,"8945623985431756"}};
+ST_transaction Transatabase[255]={0};
 EN_transState_t receiveTransactionData(ST_transaction* transData)
 {
 int error1 =isValidAccount(&transData->cardHolderData);
@@ -52,7 +53,18 @@ EN_serverError_t isAmountAvailable(ST_terminalData_t* termData){
     return OK2;
 }
 EN_serverError_t saveTransaction(ST_transaction* transData){
+    transData->transactionSequenceNumber = transactionIndex;
+    if (transData->transactionSequenceNumber < 255)
+    {
+        Transatabase[transData->transactionSequenceNumber].cardHolderData = transData->cardHolderData;
+        Transatabase[transData->transactionSequenceNumber].terminalData = transData->terminalData;
+        Transatabase[transData->transactionSequenceNumber].transState = transData->transState;
+        Transatabase[transData->transactionSequenceNumber].transactionSequenceNumber = transData->transactionSequenceNumber + 1;
+        transactionIndex++;
+        return OK2;
+    }
 
+    return SAVING_FAILED;
 
 }
 
