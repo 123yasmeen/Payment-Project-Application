@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "card/card.h"
+#include "card.h"
 EN_cardError_t getCardHolderName(ST_cardData_t* cardData)
 {
 	uint8_t Wspace_counter = 0;

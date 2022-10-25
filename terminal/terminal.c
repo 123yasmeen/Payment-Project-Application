@@ -1,4 +1,10 @@
 #include "terminal.h"
+#include "stdio.h"
+#include "string.h"
+#include "ctype.h"
+#include "card.h"
+#include <stdlib.h>
+#include <string.h>
 
 EN_terminalError_t getTransactionDate(ST_terminalData_t *termData)
 {
@@ -18,7 +24,7 @@ EN_terminalError_t getTransactionDate(ST_terminalData_t *termData)
     }
     else
     {
-        return OK;
+        return OK1;
     }
 }
 
@@ -34,7 +40,7 @@ EN_terminalError_t isCardExpired(ST_cardData_t cardData, ST_terminalData_t termD
 
     if(terminalDate < expirationDate)
     {
-        return Ok;
+        return OK1;
     }
     else
     {
@@ -52,7 +58,7 @@ EN_terminalError_t getTransactionAmount(ST_terminalData_t *termData)
     }
     else
     {
-        return Ok;
+        return OK1;
     }
 }
 
@@ -66,7 +72,7 @@ EN_terminalError_t setMaxAmount(ST_terminalData_t *termData)
     }
     else
     {
-        return Ok;
+        return OK1;
     }
 
 }
@@ -75,10 +81,31 @@ EN_terminalError_t isBelowMaxAmount(ST_terminalData_t *termData)
 {
     if(termData->transAmount<=termData->maxTransAmount)
     {
-        return Ok;
+        return OK1;
     }
     else
     {
         return EXCEED_MAX_AMOUNT;
     }
+}
+EN_terminalError_t isValidCardPAN(ST_cardData_t* cardData)
+{
+    int num = 0, sum = 0, pos = 0;
+    for (char i = strlen(cardData->primaryAccountNumber) - 1; i >= 0; i--)
+    {
+        num = cardData->primaryAccountNumber[i] - '0';
+
+        if (pos == 1)
+            num = num * 2;
+
+        sum += num % 10;
+        sum += num / 10;
+        pos = !pos;
+
+    }
+
+    if (sum % 10 != 0)
+        return INVALID_CARD;
+
+    return OK1;
 }

@@ -1,13 +1,20 @@
 #include "server.h"
 #include <stdio.h>
 #include <string.h>
+#include "card.h"
+#include "terminal.h"
+
 int CardIndex=0;
+FILE *fp = NULL;
+FILE *fpac = NULL;
 float CardBalance=0;
-ST_accountsDB_t accountsDb [255]={ {7000.00,RUNNING,8945623985431754},{2200.00,BLOCKED,8945623985431755},{400000.00,RUNNING,8945623985431756}};
-ST_transaction transaction[255]={0};
+int transactionIndex = 0;
+
+ST_accountsDB_t accountsDb[255] = { {7000.00,RUNNING,"42197595016361283"},{2200.00,BLOCKED,"12274013219468847"},{400000.00,RUNNING,"98224943623921876"} };
+ST_transaction Transatabase[255]={0};
 EN_transState_t receiveTransactionData(ST_transaction* transData)
 {
-int error1 =isValidAccount(&transData->cardHolderData);
+    int error1 =isValidAccount(&transData->cardHolderData);
 if(error1==ACCOUNT_NOT_FOUND||error1==BLOCKED_ACCOUNT){
     transData->transState=DECLINED_STOLEN_CARD;
     return DECLINED_STOLEN_CARD;
@@ -17,16 +24,23 @@ int error2= isAmountAvailable(&transData->terminalData);
         transData->transState=LOW_BALANCE;
         return LOW_BALANCE;
     }
-int error3= saveTransaction(&transData);
+int error3= saveTransaction(transData);
     if(error3==SAVING_FAILED){
         transData->transState=INTERNAL_SERVER_ERROR;
         return INTERNAL_SERVER_ERROR;
     }
     accountsDb[CardIndex].balance -= transData->terminalData.transAmount;
-    printf("your balance after transaction= %.2f",accountsDb[CardIndex].balance);
+    printf("your balance after transaction= %.2f\n", accountsDb[CardIndex].balance);
+    errno_t error;
+    error = fopen_s(&fp, "transactions.txt", "a");
+    fprintf(fp, "%f\n", accountsDb[CardIndex].balance);
+    fprintf(fp, "-----------------------------------------------\n");
+
+    fclose(fp);
     CardIndex=0;
     CardBalance=0.00;
     transData->transState= APPROVED;
+
     return APPROVED;
 }
 EN_serverError_t isValidAccount(ST_cardData_t* cardData)
@@ -36,7 +50,7 @@ EN_serverError_t isValidAccount(ST_cardData_t* cardData)
             if(accountsDb[i].state==BLOCKED){
                 return BLOCKED_ACCOUNT;
             }
-            CardIndex==i;
+            CardIndex=i;
             CardBalance=accountsDb[i].balance;
             return OK2;
         }
@@ -51,8 +65,31 @@ EN_serverError_t isAmountAvailable(ST_terminalData_t* termData){
     }
     return OK2;
 }
-EN_serverError_t saveTransaction(ST_transaction* transData){
+EN_serverError_t saveTransaction(ST_transaction* transData) {
+    transData->transactionSequenceNumber = transactionIndex;
+    if (transData->transactionSequenceNumber < 255)
+    {
+        Transatabase[transData->transactionSequenceNumber].cardHolderData = transData->cardHolderData;
+        Transatabase[transData->transactionSequenceNumber].terminalData = transData->terminalData;
+        Transatabase[transData->transactionSequenceNumber].transState = transData->transState;
+        Transatabase[transData->transactionSequenceNumber].transactionSequenceNumber = transData->transactionSequenceNumber + 1;
+
+        fp = fopen("transactions.txt", "a");
+        fprintf(fp,"%s\n", Transatabase[transData->transactionSequenceNumber].cardHolderData.cardHolderName);
+        fprintf(fp, "%s\n", Transatabase[transData->transactionSequenceNumber].cardHolderData.cardExpirationDate);
+        fprintf(fp,"%s\n", Transatabase[transData->transactionSequenceNumber].cardHolderData.primaryAccountNumber);
+        fprintf(fp, "%s\n", Transatabase[transData->transactionSequenceNumber].terminalData.transactionDate);
+        fprintf(fp, "%f\n", Transatabase[transData->transactionSequenceNumber].terminalData.transAmount);
+        fprintf(fp, "%d\n", Transatabase[transData->transactionSequenceNumber].transactionSequenceNumber);
 
 
+        fclose(fp);
+        transactionIndex++;
+        return OK2;
+    }
+
+    return SAVING_FAILED;
 }
+
+
 

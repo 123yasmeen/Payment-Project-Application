@@ -1,5 +1,9 @@
 #ifndef UNTITLED_SERVER_H
 #define UNTITLED_SERVER_H
+
+#include "card.h"
+#include "terminal.h"
+
 typedef enum EN_transState_t
 {
 	APPROVED, DECLINED_INSUFFECIENT_FUND, DECLINED_STOLEN_CARD, FRAUD_CARD, INTERNAL_SERVER_ERROR
