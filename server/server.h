@@ -27,7 +27,7 @@ typedef enum EN_accountState_t
 typedef struct ST_accountsDB_t
 {
 	float balance;
-	EN_accountState_t state;
+	int state;
 	uint8_t primaryAccountNumber[20];
 }ST_accountsDB_t;
 EN_transState_t receiveTransactionData(ST_transaction* transData);

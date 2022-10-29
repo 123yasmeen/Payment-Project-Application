@@ -3,17 +3,41 @@
 #include <string.h>
 #include "card.h"
 #include "terminal.h"
+#include <stdlib.h>
 
+
+#define MAX_LINES 100
+#define MAX_LEN 1000
 int CardIndex=0;
 FILE *fp = NULL;
 FILE *fpac = NULL;
 float CardBalance=0;
 int transactionIndex = 0;
 
-ST_accountsDB_t accountsDb[255] = { {7000.00,RUNNING,"42197595016361283"},{2200.00,BLOCKED,"12274013219468847"},{400000.00,RUNNING,"98224943623921876"} };
+ST_accountsDB_t accountsDb[255] = { 0 };
 ST_transaction Transatabase[255]={0};
 EN_transState_t receiveTransactionData(ST_transaction* transData)
 {
+    FILE *fp1 = NULL;
+
+    fp1 = fopen( "accounts.txt", "r");
+    float bal;
+    int stat;
+    char pan[20];
+    int i=0;
+    while (!feof(fp1))
+    {
+        fscanf(fp1,"%f",&bal);
+        fscanf(fp1,"%d",&stat);
+        fscanf(fp1,"%s",pan);
+        accountsDb[i].balance = bal;
+        accountsDb[i].state = stat;
+        strcpy((char*)accountsDb[i].primaryAccountNumber,pan);
+        ++i;
+
+    }
+    fclose(fp1);
+
     int error1 =isValidAccount(&transData->cardHolderData);
 if(error1==ACCOUNT_NOT_FOUND||error1==BLOCKED_ACCOUNT){
     transData->transState=DECLINED_STOLEN_CARD;
@@ -37,6 +61,15 @@ int error3= saveTransaction(transData);
     fprintf(fp, "-----------------------------------------------\n");
 
     fclose(fp);
+    fp1 = fopen( "accounts.txt", "w");
+    for (int j=0; j<i; j++) {
+        fprintf(fp1, "%f ", accountsDb[j].balance);
+        fprintf(fp1, "%d ", accountsDb[j].state);
+        fprintf(fp1, "%s\n", accountsDb[j].primaryAccountNumber);
+
+    }
+        fclose(fp1);
+
     CardIndex=0;
     CardBalance=0.00;
     transData->transState= APPROVED;
